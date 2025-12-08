@@ -1,86 +1,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct no {
+typedef struct node {
     int v;
-    struct no *prox;
-} No;
+    struct node *l, *r;
+} node;
 
-typedef struct {
-    No *ini;
-    No *fim;
-} Fila;
-
-void init(Fila *f) {
-    f->ini = NULL;
-    f->fim = NULL;
-}
-
-void add(Fila *f, int x) {
-    No *n = malloc(sizeof(No));
-    n->v = x;
-    n->prox = NULL;
-    if (f->fim == NULL) {
-        f->ini = n;
-        f->fim = n;
-    } else {
-        f->fim->prox = n;
-        f->fim = n;
+node* add(node* root, int x) {
+    if (!root) {
+        root = malloc(sizeof(node));
+        root->v = x;
+        root->l = root->r = NULL;
+        return root;
     }
+    if (x < root->v) root->l = add(root->l, x);
+    else if (x > root->v) root->r = add(root->r, x);
+    return root;
 }
 
-int vazio(Fila *f) {
-    return f->ini == NULL;
-}
-
-int rmv(Fila *f) {
-    No *t = f->ini;
-    int x = t->v;
-    f->ini = t->prox;
-    if (f->ini == NULL) f->fim = NULL;
-    free(t);
-    return x;
+int find(node* root, int x) {
+    while (root) {
+        if (x == root->v) return 1;
+        if (x < root->v) root = root->l;
+        else root = root->r;
+    }
+    return 0;
 }
 
 int main() {
-    int n, m, x;
+    int n;
     scanf("%d", &n);
 
-    Fila fila;
-    init(&fila);
+    int fila[n];
+    for (int i = 0; i < n; i++) scanf("%d", &fila[i]);
 
-    for (int i = 0; i < n; i++) {
-        scanf("%d", &x);
-        add(&fila, x);
-    }
-
+    int m;
     scanf("%d", &m);
 
-    Fila rem;
-    init(&rem);
-
+    node* passouTree = NULL;
     for (int i = 0; i < m; i++) {
+        int x;
         scanf("%d", &x);
-        add(&rem, x);
+        passouTree = add(passouTree, x);
     }
 
-    int atual = rmv(&rem);
-    int resp[10005], k = 0;
-
-    while (!vazio(&fila)) {
-        int u = rmv(&fila);
-        if (u == atual) {
-            if (!vazio(&rem)) atual = rmv(&rem);
-        } else {
-            resp[k++] = u;
+    int first = 1;
+    for (int i = 0; i < n; i++) {
+        if (!find(passouTree, fila[i])) {
+            if (!first) printf(" ");
+            printf("%d", fila[i]);
+            first = 0;
         }
-    }
-
-    for (int i = 0; i < k; i++) {
-        if (i) printf(" ");
-        printf("%d", resp[i]);
     }
     printf("\n");
 
     return 0;
+
 }
