@@ -2,50 +2,65 @@
 #include <stdlib.h>
 
 typedef struct no {
-    int v;
-    struct no *p;
-} no;
+    int vertice;
+    struct no *prox;
+} No;
 
-int main(){
-    int t, ini, n, a, x, y, i;
-    scanf("%d", &t);
+int main() {
+    int casos;
+    scanf("%d", &casos);
 
-    while(t--){
-        scanf("%d %d %d", &ini, &n, &a);
+    while (casos--) {
+        int inicio, qtd_vertices, qtd_arestas;
+        scanf("%d %d %d", &inicio, &qtd_vertices, &qtd_arestas);
 
-        no *g[n];
-        for(i=0;i<n;i++) g[i] = NULL;
+        No *grafo[qtd_vertices];
+        for (int i = 0; i < qtd_vertices; i++)
+            grafo[i] = NULL;
 
-        for(i=0;i<a;i++){
-            scanf("%d %d", &x, &y);
-            no *u = malloc(sizeof(no));
-            u->v = y; u->p = g[x]; g[x] = u;
-            no *w = malloc(sizeof(no));
-            w->v = x; w->p = g[y]; g[y] = w;
+        for (int i = 0; i < qtd_arestas; i++) {
+            int origem, destino;
+            scanf("%d %d", &origem, &destino);
+
+            No *novo1 = malloc(sizeof(No));
+            novo1->vertice = destino;
+            novo1->prox = grafo[origem];
+            grafo[origem] = novo1;
+
+            No *novo2 = malloc(sizeof(No));
+            novo2->vertice = origem;
+            novo2->prox = grafo[destino];
+            grafo[destino] = novo2;
         }
 
-        int vis[n];
-        for(i=0;i<n;i++) vis[i] = 0;
+        int visitado[qtd_vertices];
+        for (int i = 0; i < qtd_vertices; i++)
+            visitado[i] = 0;
 
-        int pilha[n], topo = 0;
-        pilha[topo++] = ini;
-        vis[ini] = 1;
+        int pilha[qtd_vertices];
+        int topo = 0;
 
-        int contA = 0;
+        pilha[topo++] = inicio;
+        visitado[inicio] = 1;
 
-        while(topo){
-            int u = pilha[--topo];
-            for(no *aux = g[u]; aux; aux = aux->p){
-                int v = aux->v;
-                if(!vis[v]){
-                    vis[v] = 1;
-                    contA++;
-                    pilha[topo++] = v;
+        int arestas_utilizadas = 0;
+
+        while (topo > 0) {
+            int atual = pilha[--topo];
+
+            for (No *aux = grafo[atual]; aux != NULL; aux = aux->prox) {
+                int vizinho = aux->vertice;
+
+                if (!visitado[vizinho]) {
+                    visitado[vizinho] = 1;
+                    arestas_utilizadas++;
+                    pilha[topo++] = vizinho;
                 }
             }
         }
 
-        printf("%d\n", contA * 2);
+        printf("%d\n", arestas_utilizadas * 2);
     }
+
     return 0;
 }
