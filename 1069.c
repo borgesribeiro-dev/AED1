@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct no {
-    char valor;
+    char simbolo;
     struct no *prox;
 } No;
 
@@ -11,50 +11,54 @@ typedef struct {
     No *topo;
 } Pilha;
 
-void push(Pilha *p, char valor) {
+void empilhar(Pilha *p, char simbolo) {
     No *novo = (No*) malloc(sizeof(No));
-    novo->valor = valor;
+    novo->simbolo = simbolo;
     novo->prox = p->topo;
     p->topo = novo;
 }
 
-void pop(Pilha *p) {
+void desempilhar(Pilha *p) {
     if (p->topo) {
-        No *tmp = p->topo;
+        No *aux = p->topo;
         p->topo = p->topo->prox;
-        free(tmp);
+        free(aux);
     }
 }
 
-int empty(Pilha *p) {
+int pilha_vazia(Pilha *p) {
     return p->topo == NULL;
 }
 
-void destroi(Pilha *p) {
-    while (!empty(p))
-        pop(p);
+void destruir_pilha(Pilha *p) {
+    while (!pilha_vazia(p))
+        desempilhar(p);
 }
 
 int main() {
-    int N; 
+    int quantidade;
     char expressao[1001];
-    scanf("%d\n", &N);
 
-    for (int k = 0; k < N; ++k) {
-        Pilha p = {NULL};
-        int diamantes = 0;
+    scanf("%d\n", &quantidade);
+
+    for (int i = 0; i < quantidade; i++) {
+        Pilha pilha = { NULL };
+        int total_diamantes = 0;
+
         fgets(expressao, 1001, stdin);
 
-        for (int i = 0; expressao[i]; ++i) {
-            if (expressao[i] == '<') {
-                push(&p, '<');
-            } else if (expressao[i] == '>' && !empty(&p)) {
-                pop(&p);
-                diamantes++;
+        for (int j = 0; expressao[j]; j++) {
+            if (expressao[j] == '<') {
+                empilhar(&pilha, '<');
+            } else if (expressao[j] == '>' && !pilha_vazia(&pilha)) {
+                desempilhar(&pilha);
+                total_diamantes++;
             }
         }
-        printf("%d\n", diamantes);
-        destroi(&p);
+
+        printf("%d\n", total_diamantes);
+        destruir_pilha(&pilha);
     }
+
     return 0;
 }
