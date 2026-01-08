@@ -1,58 +1,66 @@
 #include <stdio.h>
 
-#define MAXV 20
+#define MAX_VERTICES 20
 
-int v, e;
-int adj[MAXV][MAXV];
-int visitado[MAXV];
+int qtd_vertices, qtd_arestas;
+int matriz_adj[MAX_VERTICES][MAX_VERTICES];
+int visitado[MAX_VERTICES];
 
-int dfs(int u, int nivel) {
-    int teve_aresta = 0;
-    visitado[u] = 1;
+int busca_profundidade(int atual, int nivel) {
+    int possui_aresta = 0;
+    visitado[atual] = 1;
 
-    for (int w = 0; w < v; w++) {
-        if (adj[u][w]) {
-            teve_aresta = 1;
-            for (int k = 0; k < nivel; k++) putchar(' ');
-            if (!visitado[w]) {
-                printf("%d-%d pathR(G,%d)\n", u, w, w);
-                dfs(w, nivel + 2);
+    for (int vizinho = 0; vizinho < qtd_vertices; vizinho++) {
+        if (matriz_adj[atual][vizinho]) {
+            possui_aresta = 1;
+
+            for (int i = 0; i < nivel; i++)
+                putchar(' ');
+
+            if (!visitado[vizinho]) {
+                printf("%d-%d pathR(G,%d)\n", atual, vizinho, vizinho);
+                busca_profundidade(vizinho, nivel + 2);
             } else {
-                printf("%d-%d\n", u, w);
+                printf("%d-%d\n", atual, vizinho);
             }
         }
     }
 
-    return teve_aresta;
+    return possui_aresta;
 }
 
 int main(void) {
-    int t;
+    int casos;
 
-    if (scanf("%d", &t) != 1) return 0;
+    if (scanf("%d", &casos) != 1)
+        return 0;
 
-    for (int caso = 1; caso <= t; caso++) {
-        scanf("%d %d", &v, &e);
+    for (int indice_caso = 1; indice_caso <= casos; indice_caso++) {
+        scanf("%d %d", &qtd_vertices, &qtd_arestas);
 
-        for (int i = 0; i < v; i++) {
+        for (int i = 0; i < qtd_vertices; i++) {
             visitado[i] = 0;
-            for (int j = 0; j < v; j++)
-                adj[i][j] = 0;
+            for (int j = 0; j < qtd_vertices; j++)
+                matriz_adj[i][j] = 0;
         }
 
-        for (int i = 0; i < e; i++) {
-            int a, b;
-            scanf("%d %d", &a, &b);
-            if (a >= 0 && a < v && b >= 0 && b < v)
-                adj[a][b] = 1;
+        for (int i = 0; i < qtd_arestas; i++) {
+            int origem, destino;
+            scanf("%d %d", &origem, &destino);
+
+            if (origem >= 0 && origem < qtd_vertices &&
+                destino >= 0 && destino < qtd_vertices) {
+                matriz_adj[origem][destino] = 1;
+            }
         }
 
-        printf("Caso %d:\n", caso);
+        printf("Caso %d:\n", indice_caso);
 
-        for (int s = 0; s < v; s++) {
-            if (!visitado[s]) {
-                int ok = dfs(s, 2);
-                if (ok) printf("\n");
+        for (int vertice = 0; vertice < qtd_vertices; vertice++) {
+            if (!visitado[vertice]) {
+                int imprimiu = busca_profundidade(vertice, 2);
+                if (imprimiu)
+                    printf("\n");
             }
         }
     }
