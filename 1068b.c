@@ -2,62 +2,75 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Node {
-    char data;
-    struct Node *next;
-} Node;
+typedef struct No {
+    char valor;
+    struct No *prox;
+} No;
 
 typedef struct {
-    Node *top;
+    No *topo;
 } Pilha;
 
-void init(Pilha *p) {
-    p->top = NULL;
+void inicializar(Pilha *p) {
+    p->topo = NULL;
 }
 
-void push(Pilha *p, char c) {
-    Node *novo = (Node*)malloc(sizeof(Node));
-    novo->data = c;
-    novo->next = p->top;
-    p->top = novo;
+void empilhar(Pilha *p, char c) {
+    No *novo = (No*) malloc(sizeof(No));
+    novo->valor = c;
+    novo->prox = p->topo;
+    p->topo = novo;
 }
 
-char pop(Pilha *p) {
-    if (!p->top) return 0;
-    Node *aux = p->top;
-    char c = aux->data;
-    p->top = aux->next;
+char desempilhar(Pilha *p) {
+    if (p->topo == NULL)
+        return 0;
+
+    No *aux = p->topo;
+    char c = aux->valor;
+    p->topo = aux->prox;
     free(aux);
     return c;
 }
 
-int isEmpty(Pilha *p) {
-    return p->top == NULL;
+int pilhaVazia(Pilha *p) {
+    return p->topo == NULL;
 }
 
 int main() {
-    char expr[1000];
-    while (fgets(expr, 1000, stdin) != NULL) {
-        Pilha s;
-        init(&s);
-        int correct = 1;
-        int len = strlen(expr);
+    char expressao[1000];
 
-        for (int i = 0; i < len; i++) {
-            if (expr[i] == '(') push(&s, '(');
-            else if (expr[i] == ')') {
-                if (isEmpty(&s)) {
-                    correct = 0;
+    while (fgets(expressao, 1000, stdin) != NULL) {
+
+        Pilha pilha;
+        inicializar(&pilha);
+
+        int valida = 1;
+        int tamanho = strlen(expressao);
+
+        for (int i = 0; i < tamanho; i++) {
+
+            if (expressao[i] == '(') {
+                empilhar(&pilha, '(');
+            }
+            else if (expressao[i] == ')') {
+                if (pilhaVazia(&pilha)) {
+                    valida = 0;
                     break;
-                } else pop(&s);
+                } else {
+                    desempilhar(&pilha);
+                }
             }
         }
 
-        if (!isEmpty(&s)) correct = 0;
-        printf("%s\n", correct ? "correct" : "incorrect");
+        if (!pilhaVazia(&pilha))
+            valida = 0;
 
-        // liberar a pilha restante
-        while (!isEmpty(&s)) pop(&s);
+        printf("%s\n", valida ? "correct" : "incorrect");
+
+        while (!pilhaVazia(&pilha))
+            desempilhar(&pilha);
     }
+
     return 0;
 }
