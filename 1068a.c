@@ -4,47 +4,61 @@
 #define MAX 1000
 
 typedef struct {
-    char data[MAX];
-    int top;
+    char dados[MAX];
+    int topo;
 } Pilha;
 
-void init(Pilha *p) {
-    p->top = 0;
+void inicializar(Pilha *p) {
+    p->topo = 0;
 }
 
-void push(Pilha *p, char c) {
-    if (p->top < MAX) p->data[p->top++] = c;
+void empilhar(Pilha *p, char c) {
+    if (p->topo < MAX)
+        p->dados[p->topo++] = c;
 }
 
-char pop(Pilha *p) {
-    if (p->top == 0) return 0;
-    return p->data[--p->top];
+char desempilhar(Pilha *p) {
+    if (p->topo == 0)
+        return 0;
+    return p->dados[--p->topo];
 }
 
-int isEmpty(Pilha *p) {
-    return p->top == 0;
+int pilhaVazia(Pilha *p) {
+    return p->topo == 0;
 }
 
 int main() {
-    char expr[MAX];
-    while (fgets(expr, MAX, stdin) != NULL) {
-        Pilha s;
-        init(&s);
-        int correct = 1;
-        int len = strlen(expr);
+    char expressao[MAX];
 
-        for (int i = 0; i < len; i++) {
-            if (expr[i] == '(') push(&s, '(');
-            else if (expr[i] == ')') {
-                if (isEmpty(&s)) {
-                    correct = 0;
+    while (fgets(expressao, MAX, stdin) != NULL) {
+
+        Pilha pilha;
+        inicializar(&pilha);
+
+        int valida = 1;
+        int tamanho = strlen(expressao);
+
+        for (int i = 0; i < tamanho; i++) {
+
+            if (expressao[i] == '(') {
+                empilhar(&pilha, '(');
+            }
+            else if (expressao[i] == ')') {
+                if (pilhaVazia(&pilha)) {
+                    valida = 0;
                     break;
-                } else pop(&s);
+                } else {
+                    desempilhar(&pilha);
+                }
             }
         }
 
-        if (!isEmpty(&s)) correct = 0;
-        printf("%s\n", correct ? "correct" : "incorrect");
+        if (!pilhaVazia(&pilha))
+            valida = 0;
+
+            if (valida) printf("correct\n");
+            else printf("incorrect\n");
     }
+
     return 0;
 }
