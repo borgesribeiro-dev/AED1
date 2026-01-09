@@ -1,83 +1,103 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct No {
-    int v;
-    struct No *prox;
+typedef struct no {
+    int vertice;
+    struct no *prox;
 } No;
 
-void addAresta(No **adj, int a, int b) {
+void adicionar_aresta(No **grafo, int origem, int destino) {
     No *novo = malloc(sizeof(No));
-    novo->v = b;
-    novo->prox = adj[a];
-    adj[a] = novo;
+    novo->vertice = destino;
+    novo->prox = grafo[origem];
+    grafo[origem] = novo;
 }
 
-void dfs(int u, No **adj, int *vis, int *comp, int *p) {
-    vis[u] = 1;
-    comp[(*p)++] = u;
+void busca_profundidade(int atual, No **grafo, int *visitado, int *componente, int *tam){
+    visitado[atual] = 1;
+    componente[(*tam)++] = atual;
 
-    for (No *aux = adj[u]; aux != NULL; aux = aux->prox) {
-        if (!vis[aux->v]) {
-            dfs(aux->v, adj, vis, comp, p);
+    for (No *aux = grafo[atual]; aux != NULL; aux = aux->prox) {
+        if (!visitado[aux->vertice]) {
+            busca_profundidade(
+                aux->vertice,
+                grafo,
+                visitado,
+                componente,
+                tam
+            );
         }
     }
 }
 
-int cmpInt(const void *a, const void *b) {
-    int ia = *(const int*)a;
-    int ib = *(const int*)b;
-    return ia - ib;
+int comparar_inteiros(const void *a, const void *b) {
+    int x = *(const int*)a;
+    int y = *(const int*)b;
+    return x - y;
 }
 
 int main() {
-    int T;
-    if (scanf("%d", &T) != 1) return 0;
+    int casos;
 
-    for (int caso = 1; caso <= T; caso++) {
-        int n, m;
-        scanf("%d %d", &n, &m);
+    if (scanf("%d", &casos) != 1)
+        return 0;
 
-        No **adj = calloc(n, sizeof(No*));
-        int *vis = calloc(n, sizeof(int));
+    for (int indice_caso = 1; indice_caso <= casos; indice_caso++) {
+        int qtd_vertices, qtd_arestas;
+        scanf("%d %d", &qtd_vertices, &qtd_arestas);
 
-        for (int i = 0; i < m; i++) {
+        No **grafo = calloc(qtd_vertices, sizeof(No*));
+        int *visitado = calloc(qtd_vertices, sizeof(int));
+
+        for (int i = 0; i < qtd_arestas; i++) {
             char a, b;
             scanf(" %c %c", &a, &b);
-            int x = a - 'a';
-            int y = b - 'a';
-            addAresta(adj, x, y);
-            addAresta(adj, y, x);
+
+            int u = a - 'a';
+            int v = b - 'a';
+
+            adicionar_aresta(grafo, u, v);
+            adicionar_aresta(grafo, v, u);
         }
 
-        printf("Case #%d:\n", caso);
+        printf("Case #%d:\n", indice_caso);
 
-        int componentes = 0;
+        int total_componentes = 0;
 
-        for (int i = 0; i < n; i++) {
-            if (!vis[i]) {
-                int *comp = malloc(n * sizeof(int)); // no máximo n vértices na componente
-                int p = 0;
+        for (int i = 0; i < qtd_vertices; i++) {
+            if (!visitado[i]) {
+                int *componente = malloc(qtd_vertices * sizeof(int));
+                int tamanho = 0;
 
-                dfs(i, adj, vis, comp, &p);
+                busca_profundidade(
+                    i,
+                    grafo,
+                    visitado,
+                    componente,
+                    &tamanho
+                );
 
-                qsort(comp, p, sizeof(int), cmpInt);
+                qsort(
+                    componente,
+                    tamanho,
+                    sizeof(int),
+                    comparar_inteiros
+                );
 
-                for (int k = 0; k < p; k++) {
-                    printf("%c,", (char)(comp[k] + 'a'));
+                for (int j = 0; j < tamanho; j++) {
+                    printf("%c,", (char)(componente[j] + 'a'));
                 }
                 printf("\n");
 
-                componentes++;
-                free(comp);
+                total_componentes++;
+                free(componente);
             }
         }
 
-        printf("%d connected components\n\n", componentes);
+        printf("%d connected components\n\n", total_componentes);
 
-        // libera memória do grafo
-        for (int i = 0; i < n; i++) {
-            No *aux = adj[i];
+        for (int i = 0; i < qtd_vertices; i++) {
+            No *aux = grafo[i];
             while (aux) {
                 No *tmp = aux;
                 aux = aux->prox;
@@ -85,8 +105,8 @@ int main() {
             }
         }
 
-        free(adj);
-        free(vis);
+        free(grafo);
+        free(visitado);
     }
 
     return 0;
