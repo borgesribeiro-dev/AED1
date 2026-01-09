@@ -3,62 +3,61 @@
 
 typedef struct no {
     char val;
-    struct no *esq, *dir;
+    struct no *esq;
+    struct no *dir;
 } no;
 
 no* novo(char v) {
-    no *t = (no*)malloc(sizeof(no));
-    t->val = v;
-    t->esq = NULL;
-    t->dir = NULL;
-    return t;
+    no *r = (no*)malloc(sizeof(no));
+    r->val = v;
+    r->esq = NULL;
+    r->dir = NULL;
+    return r;
 }
 
 no* inserir(no *r, char v) {
-    if (r == NULL) return novo(v);
+    if (!r) return novo(v);
     if (v < r->val) r->esq = inserir(r->esq, v);
     else if (v > r->val) r->dir = inserir(r->dir, v);
     return r;
 }
 
 int buscar(no *r, char v) {
-    if (r == NULL) return 0;
+    if (!r) return 0;
     if (v == r->val) return 1;
     if (v < r->val) return buscar(r->esq, v);
     return buscar(r->dir, v);
 }
 
-int first;
-
-void prefixa(no *r) {
-    if (r == NULL) return;
-    if (first == 0) printf(" ");
+void prefixa(no *r, int *first) {
+    if (!r) return;
+    if (!(*first)) printf(" ");
     printf("%c", r->val);
-    first = 0;
-    prefixa(r->esq);
-    prefixa(r->dir);
+    *first = 0;
+    prefixa(r->esq, first);
+    prefixa(r->dir, first);
 }
 
-void infixa(no *r) {
-    if (r == NULL) return;
-    infixa(r->esq);
-    if (first == 0) printf(" ");
+void infixa(no *r, int *first) {
+    if (!r) return;
+    infixa(r->esq, first);
+    if (!(*first)) printf(" ");
     printf("%c", r->val);
-    first = 0;
-    infixa(r->dir);
+    *first = 0;
+    infixa(r->dir, first);
 }
 
-void posfixa(no *r) {
-    if (r == NULL) return;
-    posfixa(r->esq);
-    posfixa(r->dir);
-    if (first == 0) printf(" ");
+void posfixa(no *r, int *first) {
+    if (!r) return;
+    posfixa(r->esq, first);
+    posfixa(r->dir, first);
+    if (!(*first)) printf(" ");
     printf("%c", r->val);
-    first = 0;
+    *first = 0;
 }
 
 void limpar(no *r) {
-    if (r == NULL) return;
+    if (!r) return;
     limpar(r->esq);
     limpar(r->dir);
     free(r);
@@ -68,7 +67,7 @@ int main() {
     no *raiz = NULL;
     char op[20], c;
 
-    while (scanf("%s", op) != EOF) {
+    while (scanf("%s", op) == 1) {
 
         if (op[0] == 'I' && op[1] == '\0') {
             scanf(" %c", &c);
@@ -82,20 +81,20 @@ int main() {
         }
 
         else if (op[0] == 'P' && op[1] == 'R') {
-            first = 1;
-            prefixa(raiz);
+            int first = 1;
+            prefixa(raiz, &first);
             printf("\n");
         }
 
         else if (op[0] == 'I' && op[1] == 'N') {
-            first = 1;
-            infixa(raiz);
+            int first = 1;
+            infixa(raiz, &first);
             printf("\n");
         }
 
         else if (op[0] == 'P' && op[1] == 'O') {
-            first = 1;
-            posfixa(raiz);
+            int first = 1;
+            posfixa(raiz, &first);
             printf("\n");
         }
     }
@@ -103,3 +102,4 @@ int main() {
     limpar(raiz);
     return 0;
 }
+
