@@ -1,105 +1,82 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-typedef struct no {
-    char val;
-    struct no *esq;
-    struct no *dir;
-} no;
+#define MAX 1000
 
-no* novo(char v) {
-    no *r = (no*)malloc(sizeof(no));
-    r->val = v;
-    r->esq = NULL;
-    r->dir = NULL;
-    return r;
-}
+typedef struct {
+    int v[MAX];
+    int top;
+} pilha;
 
-no* inserir(no *r, char v) {
-    if (!r) return novo(v);
-    if (v < r->val) r->esq = inserir(r->esq, v);
-    else if (v > r->val) r->dir = inserir(r->dir, v);
-    return r;
-}
+typedef struct {
+    int v[MAX];
+    int ini, fim;
+} fila;
 
-int buscar(no *r, char v) {
-    if (!r) return 0;
-    if (v == r->val) return 1;
-    if (v < r->val) return buscar(r->esq, v);
-    return buscar(r->dir, v);
-}
-
-void prefixa(no *r, int *first) {
-    if (!r) return;
-    if (!(*first)) printf(" ");
-    printf("%c", r->val);
-    *first = 0;
-    prefixa(r->esq, first);
-    prefixa(r->dir, first);
-}
-
-void infixa(no *r, int *first) {
-    if (!r) return;
-    infixa(r->esq, first);
-    if (!(*first)) printf(" ");
-    printf("%c", r->val);
-    *first = 0;
-    infixa(r->dir, first);
-}
-
-void posfixa(no *r, int *first) {
-    if (!r) return;
-    posfixa(r->esq, first);
-    posfixa(r->dir, first);
-    if (!(*first)) printf(" ");
-    printf("%c", r->val);
-    *first = 0;
-}
-
-void limpar(no *r) {
-    if (!r) return;
-    limpar(r->esq);
-    limpar(r->dir);
-    free(r);
-}
+typedef struct {
+    int v[MAX];
+    int tam;
+} fila_prio;
 
 int main() {
-    no *raiz = NULL;
-    char op[20], c;
+    int n, op, x;
 
-    while (scanf("%s", op) == 1) {
+    while (scanf("%d", &n) == 1) {
 
-        if (op[0] == 'I' && op[1] == '\0') {
-            scanf(" %c", &c);
-            raiz = inserir(raiz, c);
+        pilha p;
+        fila f;
+        fila_prio fp;
+
+        p.top = 0;
+        f.ini = f.fim = 0;
+        fp.tam = 0;
+
+        int eh_pilha = 1;
+        int eh_fila = 1;
+        int eh_fp = 1;
+
+        for (int i = 0; i < n; i++) {
+            scanf("%d %d", &op, &x);
+
+            if (op == 1) {
+                p.v[p.top++] = x;
+                f.v[f.fim++] = x;
+                fp.v[fp.tam++] = x;
+            } else {
+                if (p.top == 0 || p.v[p.top - 1] != x)
+                    eh_pilha = 0;
+                else
+                    p.top--;
+
+                if (f.ini == f.fim || f.v[f.ini] != x)
+                    eh_fila = 0;
+                else
+                    f.ini++;
+
+                if (fp.tam == 0) {
+                    eh_fp = 0;
+                } else {
+                    int maior = 0;
+                    for (int j = 1; j < fp.tam; j++) {
+                        if (fp.v[j] > fp.v[maior])
+                            maior = j;
+                    }
+
+                    if (fp.v[maior] == x)
+                        fp.v[maior] = fp.v[--fp.tam];
+                    else
+                        eh_fp = 0;
+                }
+            }
         }
 
-        else if (op[0] == 'P' && op[1] == '\0') {
-            scanf(" %c", &c);
-            if (buscar(raiz, c)) printf("%c existe\n", c);
-            else printf("%c nao existe\n", c);
-        }
+        int qtd = eh_pilha + eh_fila + eh_fp;
 
-        else if (op[0] == 'P' && op[1] == 'R') {
-            int first = 1;
-            prefixa(raiz, &first);
-            printf("\n");
-        }
-
-        else if (op[0] == 'I' && op[1] == 'N') {
-            int first = 1;
-            infixa(raiz, &first);
-            printf("\n");
-        }
-
-        else if (op[0] == 'P' && op[1] == 'O') {
-            int first = 1;
-            posfixa(raiz, &first);
-            printf("\n");
-        }
+        if (qtd == 0) printf("impossible\n");
+        else if (qtd > 1) printf("not sure\n");
+        else if (eh_pilha) printf("stack\n");
+        else if (eh_fila) printf("queue\n");
+        else printf("priority queue\n");
     }
 
-    limpar(raiz);
     return 0;
 }
-
