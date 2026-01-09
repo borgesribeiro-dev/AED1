@@ -1,4 +1,4 @@
-// 1152 - Dark Roads
+/*1152 - Dark Roads*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,18 +61,18 @@ int main() {
             total += z;
         }
 
-        // inicializa union-find
+        
         for (int i = 0; i < m; i++) {
             pai[i] = i;
             peso[i] = 0;
         }
 
-        // ordena arestas por custo
+        
         qsort(vet, n, sizeof(Aresta), cmp_aresta);
 
         long long mst = 0;
 
-        // Kruskal
+        
         for (int i = 0; i < n; i++) {
             int a = vet[i].u;
             int b = vet[i].v;
