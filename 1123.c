@@ -1,91 +1,100 @@
-// 1123 - Desvio de Rota
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INF 1000000000
-#define MAXN 1010
+#define INFINITO 1000000000
+#define MAX_CIDADES 1010
 
-int n, m, c, k;
-int mat[MAXN][MAXN];  // matriz de adjacência
-int distv[MAXN];      // custo mínimo até cada cidade
-int fila[MAXN];       // fila simples
-int ini, fim;
+int qtd_cidades, qtd_arestas, limite_rota, origem;
+int adj[MAX_CIDADES][MAX_CIDADES];
+int distancia[MAX_CIDADES];
+int fila[MAX_CIDADES];
+int inicio_fila, fim_fila;
 
-void inicializa_grafo() {
-    for (int i = 0; i < n; i++) {
-        distv[i] = INF;
-        for (int j = 0; j < n; j++) {
-            mat[i][j] = INF;
+void inicializar_grafo() {
+    for (int i = 0; i < qtd_cidades; i++) {
+        distancia[i] = INFINITO;
+        for (int j = 0; j < qtd_cidades; j++) {
+            adj[i][j] = INFINITO;
         }
     }
 }
 
-int dijkstra_simples(int origem, int destino) {
-    ini = 0;
-    fim = 0;
+int dijkstra_simples(int inicio, int destino) {
+    inicio_fila = 0;
+    fim_fila = 0;
 
-    distv[origem] = 0;
-    fila[fim++] = origem;
+    distancia[inicio] = 0;
+    fila[fim_fila++] = inicio;
 
-    while (ini != fim) {
-        int u = fila[ini++];
+    while (inicio_fila < fim_fila) {
+        int atual = fila[inicio_fila++];
 
-        for (int v = 0; v < n; v++) {
-            if (mat[u][v] != INF && distv[v] > distv[u] + mat[u][v]) {
-                distv[v] = distv[u] + mat[u][v];
-                fila[fim++] = v;
+        for (int vizinho = 0; vizinho < qtd_cidades; vizinho++) {
+            if (adj[atual][vizinho] != INFINITO &&
+                distancia[vizinho] > distancia[atual] + adj[atual][vizinho]) {
+
+                distancia[vizinho] = distancia[atual] + adj[atual][vizinho];
+                fila[fim_fila++] = vizinho;
             }
         }
     }
 
-    return distv[destino];
+    return distancia[destino];
 }
 
 int main() {
     while (1) {
-        if (scanf("%d %d %d %d", &n, &m, &c, &k) != 4)
+        if (scanf(
+                "%d %d %d %d",
+                &qtd_cidades,
+                &qtd_arestas,
+                &limite_rota,
+                &origem
+            ) != 4)
             return 0;
-        if (n == 0 && m == 0 && c == 0 && k == 0)
+
+        if (qtd_cidades == 0 && qtd_arestas == 0 &&
+            limite_rota == 0 && origem == 0)
             break;
 
-        inicializa_grafo();
+        inicializar_grafo();
 
-        for (int i = 0; i < m; i++) {
-            int a, b, p;
-            scanf("%d %d %d", &a, &b, &p);
+        for (int i = 0; i < qtd_arestas; i++) {
+            int a, b, peso;
+            scanf("%d %d %d", &a, &b, &peso);
 
-            int a_rota = (a < c);
-            int b_rota = (b < c);
+            int a_na_rota = (a < limite_rota);
+            int b_na_rota = (b < limite_rota);
 
-            if (!a_rota && !b_rota) {
-                // duas cidades fora da rota: bidirecional
-                if (p < mat[a][b]) {
-                    mat[a][b] = p;
-                    mat[b][a] = p;
+            if (!a_na_rota && !b_na_rota) {
+                
+                if (peso < adj[a][b]) {
+                    adj[a][b] = peso;
+                    adj[b][a] = peso;
                 }
-            } else if (!a_rota && b_rota) {
-                // entra na rota pela cidade b
-                if (p < mat[a][b]) {
-                    mat[a][b] = p;
+            } else if (!a_na_rota && b_na_rota) {
+                
+                if (peso < adj[a][b]) {
+                    adj[a][b] = peso;
                 }
-            } else if (a_rota && !b_rota) {
-                // entra na rota pela cidade a
-                if (p < mat[b][a]) {
-                    mat[b][a] = p;
+            } else if (a_na_rota && !b_na_rota) {
+                
+                if (peso < adj[b][a]) {
+                    adj[b][a] = peso;
                 }
             } else {
-                // ambos na rota: só entre consecutivas
-                if (abs(a - b) == 1 && p < mat[a][b]) {
-                    mat[a][b] = p;
-                    mat[b][a] = p;
+                
+                if (abs(a - b) == 1 && peso < adj[a][b]) {
+                    adj[a][b] = peso;
+                    adj[b][a] = peso;
                 }
             }
         }
 
-        int resposta = dijkstra_simples(k, c - 1);
-        printf("%d\n", resposta);
+        int menor_custo = dijkstra_simples(origem, limite_rota - 1);
+        printf("%d\n", menor_custo);
     }
 
     return 0;
 }
+
