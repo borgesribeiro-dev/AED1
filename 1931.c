@@ -18,7 +18,7 @@ typedef struct {
     int dist;
 } NoHeap;
 
-Aresta grafo[2 * MAXM];  // grafo estendido (2 estados)
+Aresta grafo[2 * MAXM];  
 int head[2 * MAXN];
 int distv[2 * MAXN];
 int usado[2 * MAXN];
@@ -87,24 +87,24 @@ int main() {
         int a, b, c;
         scanf("%d %d %d", &a, &b, &c);
 
-        // estados:
-        // a_par = a*2, a_impar = a*2+1
-        // b_par = b*2, b_impar = b*2+1
+        
+        
+        
 
         int a_par   = a * 2;
         int a_impar = a * 2 + 1;
         int b_par   = b * 2;
         int b_impar = b * 2 + 1;
 
-        // estrada é bidirecional, mas cada uso troca par/ímpar
+        
         add_aresta(a_par,   b_impar, c);
         add_aresta(a_impar, b_par,   c);
         add_aresta(b_par,   a_impar, c);
         add_aresta(b_impar, a_par,   c);
     }
 
-    int origem = 1 * 2;       // 1 com 0 arestas (par)
-    int destino = n * 2;      // N com número par de arestas
+    int origem = 1 * 2;       
+    int destino = n * 2;      
 
     distv[origem] = 0;
     heap_push(origem, 0);

@@ -6,7 +6,7 @@ int main() {
     int n, m;
     if (scanf("%d %d", &n, &m) != 2) return 0;
 
-    // mapa em 1D: i*m + j
+    
     char *mapa = malloc((size_t)n * m * sizeof(char));
     int *vis = calloc((size_t)n * m, sizeof(int));
     char *linha = malloc((size_t)m + 1);
@@ -27,10 +27,10 @@ int main() {
         for (int j = 0; j < m; j++) {
             int idx = i * m + j;
 
-            // IGNORA já visitado e ignora células 'o' (contamos só as regiões '.')
+            
             if (vis[idx] || mapa[idx] == 'o') continue;
 
-            // BFS a partir de uma célula '.'
+            
             int ini = 0, fim = 0;
             fila[fim++] = idx;
             vis[idx] = 1;
