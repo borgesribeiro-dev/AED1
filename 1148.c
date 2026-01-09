@@ -1,146 +1,171 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INF 1000000000
+#define INFINITO 1000000000
+
+typedef struct no {
+    int vertice;
+    int peso;
+    struct no *prox;
+} No;
 
 typedef struct {
-    int v, w;
-    struct Node *next;
-} Node;
+    int vertice;
+    int distancia;
+} ItemHeap;
 
-typedef struct {
-    int u, dist;
-} Par;
+int qtd_vertices, qtd_arestas;
+No *grafo[5005];
 
-int n, m;
-Node *g[5005];
-int dist[5005];
-int pos[5005];
-Par heap[20000];
-int hsz;
+int distancia[5005];
+int posicao[5005];
 
-void add(int u, int v, int w){
-    Node *p = malloc(sizeof(Node));
-    p->v = v; p->w = w; p->next = g[u];
-    g[u] = p;
+ItemHeap heap[20000];
+int tamanho_heap;
+
+void adicionar_aresta(int origem, int destino, int peso) {
+    No *novo = malloc(sizeof(No));
+    novo->vertice = destino;
+    novo->peso = peso;
+    novo->prox = grafo[origem];
+    grafo[origem] = novo;
 }
 
-void swap(int i, int j){
-    Par t = heap[i];
+void trocar(int i, int j) {
+    ItemHeap tmp = heap[i];
     heap[i] = heap[j];
-    heap[j] = t;
-    pos[heap[i].u] = i;
-    pos[heap[j].u] = j;
+    heap[j] = tmp;
+
+    posicao[heap[i].vertice] = i;
+    posicao[heap[j].vertice] = j;
 }
 
-void sobe(int i){
-    while(i > 1){
-        int p = i/2;
-        if(heap[p].dist <= heap[i].dist) break;
-        swap(p, i);
-        i = p;
+void subir(int i) {
+    while (i > 1) {
+        int pai = i / 2;
+        if (heap[pai].distancia <= heap[i].distancia)
+            break;
+        trocar(pai, i);
+        i = pai;
     }
 }
 
-void desce(int i){
-    while(1){
-        int e = 2*i, d = e+1, menor = i;
-        if(e <= hsz && heap[e].dist < heap[menor].dist) menor = e;
-        if(d <= hsz && heap[d].dist < heap[menor].dist) menor = d;
-        if(menor == i) break;
-        swap(menor, i);
+void descer(int i) {
+    while (1) {
+        int esq = 2 * i;
+        int dir = esq + 1;
+        int menor = i;
+
+        if (esq <= tamanho_heap &&
+            heap[esq].distancia < heap[menor].distancia)
+            menor = esq;
+
+        if (dir <= tamanho_heap &&
+            heap[dir].distancia < heap[menor].distancia)
+            menor = dir;
+
+        if (menor == i)
+            break;
+
+        trocar(menor, i);
         i = menor;
     }
 }
 
-void push(int u, int d){
-    ++hsz;
-    heap[hsz].u = u;
-    heap[hsz].dist = d;
-    pos[u] = hsz;
-    sobe(hsz);
+void inserir_heap(int vertice, int dist) {
+    tamanho_heap++;
+    heap[tamanho_heap].vertice = vertice;
+    heap[tamanho_heap].distancia = dist;
+    posicao[vertice] = tamanho_heap;
+    subir(tamanho_heap);
 }
 
-Par pop(){
-    Par r = heap[1];
-    heap[1] = heap[hsz];
-    pos[heap[1].u] = 1;
-    hsz--;
-    desce(1);
-    return r;
+ItemHeap remover_minimo() {
+    ItemHeap minimo = heap[1];
+    heap[1] = heap[tamanho_heap];
+    posicao[heap[1].vertice] = 1;
+    tamanho_heap--;
+    descer(1);
+    return minimo;
 }
 
-void relaxa(int s){
-    for(int i=1; i<=n; i++){
-        dist[i] = INF;
-        pos[i] = 0;
+void dijkstra(int origem) {
+    for (int i = 1; i <= qtd_vertices; i++) {
+        distancia[i] = INFINITO;
+        posicao[i] = 0;
     }
-    dist[s] = 0;
 
-    hsz = 0;
-    push(s, 0);
+    distancia[origem] = 0;
+    tamanho_heap = 0;
+    inserir_heap(origem, 0);
 
-    while(hsz){
-        Par p = pop();
-        int u = p.u;
-        if(p.dist > dist[u]) continue;
+    while (tamanho_heap > 0) {
+        ItemHeap atual = remover_minimo();
+        int u = atual.vertice;
 
-        for(Node *k = g[u]; k; k = k->next){
-            int v = k->v;
-            int nd = dist[u] + k->w;
+        if (atual.distancia > distancia[u])
+            continue;
 
-            if(nd < dist[v]){
-                dist[v] = nd;
-                if(pos[v] == 0){
-                    push(v, nd);
+        for (No *aux = grafo[u]; aux; aux = aux->prox) {
+            int v = aux->vertice;
+            int nova_dist = distancia[u] + aux->peso;
+
+            if (nova_dist < distancia[v]) {
+                distancia[v] = nova_dist;
+
+                if (posicao[v] == 0) {
+                    inserir_heap(v, nova_dist);
                 } else {
-                    heap[pos[v]].dist = nd;
-                    sobe(pos[v]);
+                    heap[posicao[v]].distancia = nova_dist;
+                    subir(posicao[v]);
                 }
             }
         }
     }
 }
 
-int main(){
-    while(1){
-        scanf("%d %d", &n, &m);
-        if(n == 0 && m == 0) break;
+int main() {
+    while (1) {
+        scanf("%d %d", &qtd_vertices, &qtd_arestas);
+        if (qtd_vertices == 0 && qtd_arestas == 0)
+            break;
 
-        for(int i=1; i<=n; i++)
-            g[i] = NULL;
+        for (int i = 1; i <= qtd_vertices; i++)
+            grafo[i] = NULL;
 
-        for(int i=0; i<m; i++){
-            int x, y, h;
-            scanf("%d %d %d", &x, &y, &h);
+        for (int i = 0; i < qtd_arestas; i++) {
+            int a, b, peso;
+            scanf("%d %d %d", &a, &b, &peso);
 
-            // Verifica reciprocidade (estradas de ida e volta = custo zero)
-            Node *p = g[y];
-            int bidi = 0;
-            while(p){
-                if(p->v == x){ bidi = 1; break; }
-                p = p->next;
+            int reciproco = 0;
+            for (No *p = grafo[b]; p; p = p->prox) {
+                if (p->vertice == a) {
+                    reciproco = 1;
+                    break;
+                }
             }
 
-            if(bidi){
-                add(x, y, 0);
-                add(y, x, 0);
+            if (reciproco) {
+                adicionar_aresta(a, b, 0);
+                adicionar_aresta(b, a, 0);
             } else {
-                add(x, y, h);
+                adicionar_aresta(a, b, peso);
             }
         }
 
-        int q;
-        scanf("%d", &q);
+        int consultas;
+        scanf("%d", &consultas);
 
-        while(q--){
-            int a, b;
-            scanf("%d %d", &a, &b);
+        while (consultas--) {
+            int origem, destino;
+            scanf("%d %d", &origem, &destino);
 
-            relaxa(a);
+            dijkstra(origem);
 
-            if(dist[b] == INF) printf("Nao e possivel entregar a carta\n");
-            else printf("%d\n", dist[b]);
+            if (distancia[destino] == INFINITO)
+                printf("Nao e possivel entregar a carta\n");
+            else
+                printf("%d\n", distancia[destino]);
         }
 
         printf("\n");
