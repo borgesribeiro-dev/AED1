@@ -1,59 +1,57 @@
-// 1466 - Percurso em Árvore por Nível
-
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX 2000
+
 typedef struct no {
-    int valor;
+    int val;
     struct no *esq;
     struct no *dir;
-} No;
+} no;
 
-No* insere_abp(No *raiz, int x) {
-    if (raiz == NULL) {
-        No *novo = (No*)malloc(sizeof(No));
-        novo->valor = x;
+no* inserir(no *r, int x) {
+    if (r == NULL) {
+        no *novo = (no*)malloc(sizeof(no));
+        novo->val = x;
         novo->esq = NULL;
         novo->dir = NULL;
         return novo;
     }
-    if (x < raiz->valor) {
-        raiz->esq = insere_abp(raiz->esq, x);
-    } else {
-        raiz->dir = insere_abp(raiz->dir, x);
-    }
-    return raiz;
+
+    if (x < r->val)
+        r->esq = inserir(r->esq, x);
+    else
+        r->dir = inserir(r->dir, x);
+
+    return r;
 }
 
-void libera_arvore(No *raiz) {
-    if (raiz == NULL) return;
-    libera_arvore(raiz->esq);
-    libera_arvore(raiz->dir);
-    free(raiz);
+void limpar(no *r) {
+    if (r == NULL) return;
+    limpar(r->esq);
+    limpar(r->dir);
+    free(r);
 }
 
-#define MAXN 2000
-
-void percurso_nivel(No *raiz, int qtd) {
-    No *fila[MAXN];
+void nivel(no *r) {
+    no *fila[MAX];
     int ini = 0, fim = 0;
+    int primeiro = 1;
 
-    if (raiz != NULL) {
-        fila[fim++] = raiz;
+    if (r != NULL)
+        fila[fim++] = r;
+
+    while (ini < fim) {
+        no *p = fila[ini++];
+
+        if (!primeiro) printf(" ");
+        printf("%d", p->val);
+        primeiro = 0;
+
+        if (p->esq) fila[fim++] = p->esq;
+        if (p->dir) fila[fim++] = p->dir;
     }
 
-    int imp = 0;
-
-    while (ini != fim) {
-        No *p = fila[ini++];
-
-        if (imp) printf(" ");
-        printf("%d", p->valor);
-        imp = 1;
-
-        if (p->esq != NULL) fila[fim++] = p->esq;
-        if (p->dir != NULL) fila[fim++] = p->dir;
-    }
     printf("\n");
 }
 
@@ -61,25 +59,24 @@ int main() {
     int c, n;
     int caso = 1;
 
-    if (scanf("%d", &c) != 1) return 0;
+    scanf("%d", &c);
 
     while (c--) {
-        if (scanf("%d", &n) != 1) return 0;
+        scanf("%d", &n);
 
-        No *raiz = NULL;
+        no *raiz = NULL;
 
         for (int i = 0; i < n; i++) {
             int x;
             scanf("%d", &x);
-            raiz = insere_abp(raiz, x);
+            raiz = inserir(raiz, x);
         }
 
-        printf("Case %d:\n", caso);
-        percurso_nivel(raiz, n);
+        printf("Case %d:\n", caso++);
+        nivel(raiz);
         printf("\n");
 
-        libera_arvore(raiz);
-        caso++;
+        limpar(raiz);
     }
 
     return 0;
