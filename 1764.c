@@ -54,24 +54,24 @@ int main() {
         for (int i = 0; i < n; i++) {
             int x, y, z;
             scanf("%d %d %d", &x, &y, &z);
-            vet[i].u = x;   // cidades já vêm como 0..M-1
+            vet[i].u = x;   
             vet[i].v = y;
             vet[i].w = z;
         }
 
-        // inicializa Union-Find
+        
         for (int i = 0; i < m; i++) {
             pai[i] = i;
             altura[i] = 0;
         }
 
-        // ordena arestas por custo
+        
         qsort(vet, n, sizeof(Aresta), compara_aresta);
 
         long long custo_mst = 0;
         int usados = 0;
 
-        // Kruskal: escolhe M-1 arestas
+        
         for (int i = 0; i < n && usados < m - 1; i++) {
             int a = vet[i].u;
             int b = vet[i].v;
