@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-// Função recursiva que retorna menor valor e posição
+
 int Min(int *v, int n, int *posicao) {
     if (n == 1) {
         *posicao = 0;
@@ -27,9 +27,9 @@ int main() {
     scanf("%d", &n);
     if (n < 1 || n > 1000) return 0;
 
-    // Lê os elementos usando ponteiro
+    
     for (int i = 0; i < n; i++) {
-        scanf("%d", p + i);  // sem colchetes
+        scanf("%d", p + i);  
     }
 
     int menor = Min(p, n, &posicao);
