@@ -1,63 +1,70 @@
 #include <stdio.h>
 
-#define MAX 60
+#define MAX_CARTAS 60
 
 typedef struct {
-    int v[MAX];
-    int f, b;
+    int dados[MAX_CARTAS];
+    int inicio, fim;
 } Fila;
 
-void init(Fila *q) {
-    q->f = 0;
-    q->b = 0;
+void inicializar_fila(Fila *f) {
+    f->inicio = 0;
+    f->fim = 0;
 }
 
-int vazia(Fila *q) {
-    return q->f == q->b;
+int fila_vazia(Fila *f) {
+    return f->inicio == f->fim;
 }
 
-int tam(Fila *q) {
-    int t = q->b - q->f;
-    if (t < 0) t += MAX;
-    return t;
+int tamanho_fila(Fila *f) {
+    int tamanho = f->fim - f->inicio;
+    if (tamanho < 0)
+        tamanho += MAX_CARTAS;
+    return tamanho;
 }
 
-void push(Fila *q, int x) {
-    q->v[q->b] = x;
-    q->b = (q->b + 1) % MAX;
+void enfileirar(Fila *f, int valor) {
+    f->dados[f->fim] = valor;
+    f->fim = (f->fim + 1) % MAX_CARTAS;
 }
 
-int pop(Fila *q) {
-    int x = q->v[q->f];
-    q->f = (q->f + 1) % MAX;
-    return x;
+int desenfileirar(Fila *f) {
+    int valor = f->dados[f->inicio];
+    f->inicio = (f->inicio + 1) % MAX_CARTAS;
+    return valor;
 }
 
 int main() {
-    int n;
-    while (scanf("%d", &n) && n != 0) {
-        Fila q;
-        init(&q);
+    int quantidade;
 
-        for (int i = 1; i <= n; i++) push(&q, i);
+    while (scanf("%d", &quantidade) && quantidade != 0) {
+        Fila fila;
+        inicializar_fila(&fila);
 
-        int disc[60], d = 0;
+        for (int i = 1; i <= quantidade; i++)
+            enfileirar(&fila, i);
 
-        while (tam(&q) > 1) {
-            disc[d++] = pop(&q);
-            int x = pop(&q);
-            push(&q, x);
+        int descartadas[MAX_CARTAS];
+        int qtd_descartadas = 0;
+
+        while (tamanho_fila(&fila) > 1) {
+            descartadas[qtd_descartadas++] = desenfileirar(&fila);
+            int topo = desenfileirar(&fila);
+            enfileirar(&fila, topo);
         }
 
-        if (d == 0) {
+        if (qtd_descartadas == 0) {
             printf("Discarded cards:\n");
         } else {
-            printf("Discarded cards: %d", disc[0]);
-            for (int i = 1; i < d; i++) printf(", %d", disc[i]);
+            printf("Discarded cards: %d", descartadas[0]);
+            for (int i = 1; i < qtd_descartadas; i++)
+                printf(", %d", descartadas[i]);
             printf("\n");
         }
 
-        printf("Remaining card: %d\n", q.v[q.f]);
+        printf("Remaining card: %d\n", fila.dados[fila.inicio]);
     }
+
     return 0;
 }
+
