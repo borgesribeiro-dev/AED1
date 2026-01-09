@@ -3,21 +3,27 @@
 
 typedef struct no {
     int val;
-    struct no *esq, *dir;
+    struct no *esq;
+    struct no *dir;
 } no;
 
-no* novo(int v) {
-    no *temp = (no*)malloc(sizeof(no));
-    temp->val = v;
-    temp->esq = NULL;
-    temp->dir = NULL;
-    return temp;
+no *novo(int v) {
+    no *n = (no *)malloc(sizeof(no));
+    n->val = v;
+    n->esq = NULL;
+    n->dir = NULL;
+    return n;
 }
 
-no* inserir(no *r, int v) {
-    if (r == NULL) return novo(v);
-    if (v < r->val) r->esq = inserir(r->esq, v);
-    else r->dir = inserir(r->dir, v);
+no *inserir(no *r, int v) {
+    if (r == NULL)
+        return novo(v);
+
+    if (v < r->val)
+        r->esq = inserir(r->esq, v);
+    else
+        r->dir = inserir(r->dir, v);
+
     return r;
 }
 
@@ -43,14 +49,15 @@ void postorder(no *r) {
 }
 
 void limpar(no *r) {
-    if (!r) return;
+    if (r == NULL) return;
     limpar(r->esq);
     limpar(r->dir);
     free(r);
 }
 
 int main() {
-    int t, n, v, cont = 1;
+    int t, n, v;
+    int cont = 1;
 
     scanf("%d", &t);
 
