@@ -51,14 +51,14 @@ int bfs(int n, int m) {
             return passo;
         }
 
-        // operação 1: v + 1
+        
         int a = v + 1;
         if (a <= limite && !vis[a]) {
             vis[a] = 1;
             push(&ini, &fim, a, passo + 1);
         }
 
-        // operação 2: inverter dígitos
+        
         int b = inverte(v);
         if (b <= limite && !vis[b]) {
             vis[b] = 1;
